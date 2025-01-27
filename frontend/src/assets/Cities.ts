@@ -1,0 +1,1 @@
+export default 'Tehran-Isfahan-Tabriz-Mashhad-Shiraz-Qom-Arak-Ardebil-Ahvaz-Rasht-Isfahan-Tabriz-Mashhad-Shiraz-Qom-Arak-Ardebil-Ahvaz-Rasht'.split('-');

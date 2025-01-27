@@ -1,0 +1,24 @@
+# Logs
+forntend/logs
+forntend/*.log
+forntend/npm-debug.log*
+forntend/yarn-debug.log*
+forntend/yarn-error.log*
+forntend/pnpm-debug.log*
+forntend/lerna-debug.log*
+
+forntend/node_modules
+forntend/dist
+forntend/dist-ssr
+forntend/*.local
+
+# Editor directories and files
+forntend/.vscode/*
+forntend/!.vscode/extensions.json
+forntend/.idea
+forntend/.DS_Store
+forntend/*.suo
+forntend/*.ntvs*
+forntend/*.njsproj
+forntend/*.sln
+forntend/*.sw?
