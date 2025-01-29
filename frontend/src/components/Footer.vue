@@ -1,29 +1,38 @@
 <script setup lang="ts">
 import { 
 	ref, 
+	reactive,
 	computed, 
 	onMounted 
 } from 'vue';
 import TimeItem      from './TimeItem.vue';
 import type { Data } from './models/Data';
 
-const props   = defineProps<{ data: Data }>();
-const emit    = defineEmits(['updateData']);
-const times   = { sunrise: { hours: 7, minutes: 1 }, sunset: { hours: 5, minutes: 36 } };
-const loading = ref<boolean>(false);
-const button  = ref<string>('Tommorrow');
-const hours   = ref<number>(new Date().getHours());
-const minutes = ref<number>(new Date().getMinutes());
-const clock   = computed<string>(() => `${hours.value % 12}:${fixNum(minutes.value)} ${hours.value > 12 ? 'P' : 'A'}M`);
-const left    = computed<number>(() => (toMin(hours.value, minutes.value) - 420) / 6);
-const top     = computed<number>(() => 50 - (Math.sqrt(2500 - Math.abs(50 - left.value) ** 2)));
+const props      = defineProps<{ data: Data }>();
+const emit       = defineEmits(['updateData']);
+const times      = reactive<any>({ sunrise: [6, 0], sunset: [18, 0] });
+const loading    = ref<boolean>(false);
+const button     = ref<string>('Tommorrow');
+const hours      = ref<number>(new Date().getHours());
+const minutes    = ref<number>(new Date().getMinutes());
+const clock      = computed<string>(() => `${fixHour(hours.value)}:${fixNum(minutes.value)} ${isPM() ? 'P' : 'A'}M`);
+const sunriseMin = computed<number>(() => toMin(times.sunrise[0], times.sunrise[1]));
+const sunsetMin  = computed<number>(() => toMin(times.sunset [0], times.sunset [1]));
+const now        = computed<number>(() => toMin(hours.value, minutes.value));
+const left       = computed<number>(() => isSun() ? 
+	(now.value - sunriseMin.value) * 100 / (sunsetMin.value - sunriseMin.value) : 
+	(isPM() ? now.value - sunsetMin.value : now.value + (1440 - sunsetMin.value)) * 100 / (sunriseMin.value + (1440 - sunsetMin.value)));
+const top        = computed<number>(() => 50 - (Math.sqrt(2500 - Math.abs(50 - left.value) ** 2)));
 
-console.log(hours.value % 12)
+onMounted(() => {
+	times.sunrise = [7,  1];
+	times.sunset  = [17, 36];
 
-onMounted(() => setInterval(() => {
-	hours.value   = new Date().getHours();
-	minutes.value = new Date().getMinutes();
-}, 1_000));
+	setInterval(() => {
+		hours.value   = new Date().getHours();
+		minutes.value = new Date().getMinutes();
+	}, 1_0 * 5);
+});
 
 function getTommorrow() {
 	loading.value = true;
@@ -35,17 +44,27 @@ function getTommorrow() {
 	}, 3_000);
 }
 
-function fixNum(num: number): string {
+function fixNum(num: number): string { 
 	return num < 10 ? `0${num}` : `${num}`;
 }
 
-function toMin(h: number, m: number): number {
-	return (h % 12) * 60 + m;
+function fixHour(num: number): number {
+	return num % 12 === 0 ? 12 : num % 12; 
 }
 
-function isPM(): boolean {
-	return (hours.value > 12 && toMin(hours.value, minutes.value) > toMin(times.sunset.hours, times.sunset.minutes)) || 
-		   (hours.value < 12 && toMin(hours.value, minutes.value) < toMin(times.sunrise.hours, times.sunrise.minutes));
+function toMin(
+	h: number, 
+	m: number
+): number { 
+	return h * 60 + m;
+}
+
+function isPM(): boolean { 
+	return hours.value >= 12; 
+}
+
+function isSun(): boolean { 
+	return now.value > sunriseMin.value && now.value < sunsetMin.value; 
 }
 </script>
 
@@ -53,8 +72,8 @@ function isPM(): boolean {
 	<footer class="p-7">
 		<div class="relative w-full aspect-square border-t-2 border-gray-700 rounded-full -mb-24 text-center">
 			<img 
-				:src="`src/assets/3d-icons/${isPM() ? 'moon' : 'sun'}.png`" 
-				:class="`absolute w-8 drop-shadow-[0_0_10px_${isPM() ? '#3c7dc5' : '#faea4a'}]`" 
+				:src="`src/assets/3d-icons/${isSun() ? 'sun' : 'moon'}.png`" 
+				:class="`absolute w-8 drop-shadow-[0_0_10px_${isSun() ? '#faea4a' : '#3c7dc5'}]`" 
 				:style="`
 					top:  calc(${top}%  - 1rem);
 					left: calc(${left}% - 1rem);
@@ -62,8 +81,8 @@ function isPM(): boolean {
 			>
 			<div class="absolute top-[20%] inset-x-0 text-2xl">{{ clock }}</div>
 			<div class="absolute top-[45%] inset-x-4 flex items-center justify-between text-xs">
-				<div class=""><span class="text-gray-500">Sunrise:</span> {{ times.sunrise.hours }}:{{ fixNum(times.sunrise.minutes) }} AM</div>
-				<div class=""><span class="text-gray-500">Sunset:</span> {{ times.sunset.hours }}:{{ fixNum(times.sunset.minutes) }} PM</div>
+				<div><span class="text-gray-500">Sunrise:</span> {{ fixHour(times.sunrise[0]) }}:{{ fixNum(times.sunrise[1]) }} AM</div>
+				<div><span class="text-gray-500">Sunset:</span> {{ fixHour(times.sunset[0]) }}:{{ fixNum(times.sunset[1]) }} PM</div>
 			</div>
 		</div>
 		<ul class="bg-gray-800 border-2 border-gray-700 rounded-3xl p-3 mt-3 text-sm">
