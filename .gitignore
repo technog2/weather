@@ -22,3 +22,5 @@ forntend/*.ntvs*
 forntend/*.njsproj
 forntend/*.sln
 forntend/*.sw?
+
+frontend/src/assets/3d weather icons
