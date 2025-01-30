@@ -6,9 +6,9 @@ import {
 	onMounted 
 } from 'vue';
 import TimeItem      from './TimeItem.vue';
-import type { Data } from './models/Data';
+import type { Data } from '../models/Data';
 
-const props      = defineProps<{ data: Data }>();
+const props      = defineProps<{ data: Data | any }>();
 const emit       = defineEmits(['updateData']);
 const times      = reactive<any>({ sunrise: [6, 0], sunset: [18, 0] });
 const loading    = ref<boolean>(false);

@@ -2,7 +2,7 @@
 import { computed }  from 'vue';
 import check         from '../assets/Check';
 import Item          from './Item.vue';
-import type { Data } from './models/Data';
+import type { Data } from '../models/Data';
 
 interface Item {
 	image: string
@@ -10,7 +10,7 @@ interface Item {
 	value: string
 }
 
-const props   = defineProps<{ data: Data }>();
+const props   = defineProps<{ data: Data | any }>();
 const checked = computed<any>(() => check(props.data));
 const items   = computed<Item[]>(() => [
 	{

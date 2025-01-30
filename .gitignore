@@ -8,7 +8,7 @@ forntend/pnpm-debug.log*
 forntend/lerna-debug.log*
 
 forntend/node_modules
-forntend/dist
+# forntend/dist
 forntend/dist-ssr
 forntend/*.local
 
